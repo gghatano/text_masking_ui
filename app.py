@@ -44,12 +44,27 @@ if st.button("匿名化を実行"):
         # DataFrame に変換
         df = pd.DataFrame({"加工前のテキスト": original_texts, "加工後のテキスト": processed_texts})
 
-        # **スクロール可能なDataFrameで表示（大量データ対応）**
-        st.dataframe(df, height=600, use_container_width=True)
+        # **折り返し表示用のCSS適用**
+        st.markdown("""
+            <style>
+                table {
+                    width: 100%;
+                    table-layout: fixed;
+                }
+                th, td {
+                    word-wrap: break-word;
+                    white-space: pre-wrap;  /* 折り返し表示 */
+                    text-align: left;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+
+        # **HTMLテーブルとして表示**
+        st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
 
         # **Excelダウンロード用の処理**
         buffer = io.BytesIO()
-        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             df.to_excel(writer, index=False)
             writer.close()
 
